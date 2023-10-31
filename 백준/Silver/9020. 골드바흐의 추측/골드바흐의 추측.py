@@ -1,3 +1,7 @@
+from sys import stdin, stdout
+input = stdin.readline
+print = stdout.write
+
 def primelist(num):
     isPrime = [True] * (num + 1)
     isPrime[0], isPrime[1] = False, False
@@ -15,6 +19,6 @@ while trial > 0:
     n = int(input())
     for i in range(n//2, 1, -1):
         if isPrime[i] and isPrime[n-i]:
-            print(str(i) + " " + str(n-i))
+            print("%d %d\n" % (i, n - i))
             break
     trial -= 1
