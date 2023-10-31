@@ -1,23 +1,20 @@
-def findPrimePairs(n):
-        def primelist(num):
-            isPrime = [True] * (num + 1)
-            isPrime[0], isPrime[1] = False, False
-            for i in range(int((num)**(1/2)) + 1):
-                if isPrime[i] == True:
-                    for j in range(i*i, num + 1, i):
-                        isPrime[j] = False
-            return isPrime
+def primelist(num):
+    isPrime = [True] * (num + 1)
+    isPrime[0], isPrime[1] = False, False
+    for i in range(int((num)**(1/2)) + 1):
+        if isPrime[i] == True:
+            for j in range(i*i, num + 1, i):
+                isPrime[j] = False
+    return isPrime
         
-        isPrime = primelist(n)
+isPrime = primelist(10000)
 
-        for i in range(2, n//2 + 1):
-            if isPrime[i] and isPrime[n-i]:
-                answer = [i, n-i]
-                
-        print(str(answer[0]) + " " + str(answer[1]))
+trial = int(input())
 
-trials = int(input())
-
-while trials > 0:
-    findPrimePairs(int(input()))
-    trials -= 1
+while trial > 0:
+    n = int(input())
+    for i in range(n//2, 1, -1):
+        if isPrime[i] and isPrime[n-i]:
+            print(str(i) + " " + str(n-i))
+            break
+    trial -= 1
