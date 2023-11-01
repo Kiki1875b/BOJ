@@ -1,24 +1,34 @@
-#include <iostream>
-
+#include<iostream>
 using namespace std;
 
-int arr[100001];
-int sum[100001];
+int map[100000];
 
-int main(){
-    ios_base::sync_with_stdio(false);
+int main() {
+	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
-    int n, k, ans = -99999999;
-    cin >> n >> k;
+	
+	int n, m; cin >> n >> m;
+	for (int i = 0; i < n; i++) {
+		cin >> map[i];
+	}
+	int start, end;
+	start = 0;
+	end = m-1;
+	int tmp = 0;
+	for (int i = 0; i < m; i++) {
+		tmp += map[i];
+	}
+	int max = tmp;
+	while (end != n-1) {
+		tmp -= map[start];
+		start++;
+		end++;
+		tmp += map[end];
+		if (max < tmp) {
+			max = tmp;
+		}
+	}
+	cout << max;
 
-    for(int i = 1; i<=n; i++){
-        cin >> arr[i];
-        sum[i] = sum[i-1] + arr[i];
-    }
-    for(int i = k; i<=n; i++){
-        ans = max(ans, sum[i] - sum[i-k]);
-    }
-    cout << ans;
-
-
+	return 0;
 }
