@@ -7,26 +7,27 @@ using namespace std;
 vector<int> solution(vector<string> keymap, vector<string> targets) {
     vector<int> answer;
 
-    for(int i = 0 ; i<targets.size(); i++){
-        answer.push_back(0);
-        for(int j = 0; j<targets[i].size(); j++){
-            char a = targets[i][j];
-            int ans = 101;
-
-            for(int k = 0; k<keymap.size(); k++){
-                for(int z = 0; z<keymap[k].size(); z++){
-                    if(keymap[k][z] == a){
-                        ans = min(ans, z+1);
-                    }
-                }
-            }
-            if(ans == 101){
-                answer[i] = -1;
-                break;
-            }
-            answer[i] += ans;
+    vector<int> table(26, 100000);
+    for(const auto& v : keymap){
+        for(int i = 0 ; i<v.size(); i++){
+            table[v[i] - 'A'] = min(table[v[i] - 'A'], i + 1);
         }
     }
+
+    for(const auto& str: targets){
+        int total = 0;
+        for(const auto c: str){
+            if(table[c - 'A'] == 100000){
+                total = -1;
+                break;
+            }else{
+                total += table[c-'A'];
+            }
+        }
+        answer.push_back(total);
+    }
+
+
 
     return answer;
 }
