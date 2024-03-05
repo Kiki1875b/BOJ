@@ -14,27 +14,27 @@ int solution(int x, int y, int n) {
     queue<pair<int,int>> q;
     set<int> set;
 
-    set.insert(x);
-    q.push({x,0});
+    set.insert(y);
+    q.push({y,0});
 
     while(!q.empty()){
         auto data = q.front();
         q.pop();
-        if(data.first == y) {
+        if(data.first == x) {
             answer = data.second;
             break;
-        }else if (data.first < y){
-            int x2 = data.first * 2;
-            if(set.insert(x2).second){
+        }else if (data.first > x){
+            int x2 = data.first / 2;
+            if(data.first % 2 == 0 && set.insert(x2).second ){
                 q.push({x2, data.second + 1});
             }
 
-            int x3 = data.first * 3;
-            if(set.insert(x3).second){
+            int x3 = data.first / 3;
+            if(data.first % 3 == 0&&set.insert(x3).second ){
                 q.push({x3, data.second + 1});
             }
 
-            int xn = data.first + n;
+            int xn = data.first - n;
             if(set.insert(xn).second){
                 q.push({xn, data.second + 1});
             }
