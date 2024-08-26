@@ -1,66 +1,66 @@
-#include <string>
-#include <vector>
-#include <algorithm>
-#include <stack>
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-int stringToInt(string time){
-    return (60*stoi(time.substr(0,2))) + stoi(time.substr(3));
+int timeToInt(string time) {
+    int hours = 0, minutes = 0;
+    sscanf(time.c_str(), "%d:%d", &hours, &minutes);
+    return hours * 60 + minutes;
 }
-
-
-bool order(vector<string> v1, vector<string> v2){
-    return stringToInt(v1[1]) < stringToInt(v2[1]);
-}
-
 
 vector<string> solution(vector<vector<string>> plans) {
     vector<string> answer;
-    stack<pair<string, int>> s;
+    vector<tuple<int, string, int>> sortedPlans;
+    stack<pair<string, int>> paused;
 
-    sort(plans.begin(), plans.end(), order);
-
-    int curTime = stringToInt(plans[0][1]);
-    int nextTime = stringToInt(plans[1][1]);
-    int count = 0;
-
-    while(count < plans.size() || !s.empty()){
-        if(!s.empty()){
-            if(count == plans.size()){
-                answer.push_back(s.top().first);
-                s.pop();
-                continue;
-            }
-            if(curTime < nextTime){
-                int remain = s.top().second;
-                int available = nextTime - curTime;
-
-                if(remain <= available){
-                    answer.push_back(s.top().first);
-                    curTime += s.top().second;
-                    s.pop();
-                }else{
-                    s.top().second = remain - available;
-                    curTime = nextTime;
-                }
-                continue;
-            }
-        }
-
-        curTime = stringToInt(plans[count][1]) + stoi(plans[count][2]);
-        nextTime = count + 1  >= plans.size() ? 1440 : stringToInt(plans[count+1][1]);
-
-        if(curTime>nextTime){
-            s.push({plans[count][0], curTime - nextTime});
-            curTime = nextTime;
-        }else{
-            answer.push_back(plans[count][0]);
-        }
-        ++count;
-
+    for (const auto& plan : plans) {
+        sortedPlans.emplace_back(timeToInt(plan[1]), plan[0], stoi(plan[2]));
     }
 
+    sort(sortedPlans.begin(), sortedPlans.end());
+
+    int currentTime = get<0>(sortedPlans[0]);  
+
+    for (int i = 0; i < sortedPlans.size(); i++) {
+        int startTime = get<0>(sortedPlans[i]);
+        string subject = get<1>(sortedPlans[i]);
+        int duration = get<2>(sortedPlans[i]);
+
+
+        while (currentTime < startTime && !paused.empty()) {
+            auto [pausedSubject, pausedDuration] = paused.top();
+            paused.pop();
+
+            int availableTime = startTime - currentTime;
+            if (availableTime >= pausedDuration) {
+                answer.push_back(pausedSubject);
+                currentTime += pausedDuration;
+            } else {
+                paused.push({pausedSubject, pausedDuration - availableTime});
+                currentTime = startTime;
+                break;
+            }
+        }
+
+        currentTime = max(currentTime, startTime);
+
+
+        if (i == sortedPlans.size() - 1 || currentTime + duration <= get<0>(sortedPlans[i+1])) {
+
+            answer.push_back(subject);
+            currentTime += duration;
+        } else {
+
+            int remainingTime = get<0>(sortedPlans[i+1]) - currentTime;
+            paused.push({subject, duration - remainingTime});
+            currentTime = get<0>(sortedPlans[i+1]);
+        }
+    }
+
+ 
+    while (!paused.empty()) {
+        answer.push_back(paused.top().first);
+        paused.pop();
+    }
 
     return answer;
 }
