@@ -1,30 +1,41 @@
-#include <string>
-#include <vector>
-#include <iostream>
-#include <queue>
 
+#include <bits/stdc++.h>
 using namespace std;
 
 vector<int> solution(vector<int> sequence, int k) {
-    vector<int> answer(2,0);
-    queue<pair<int,int>> q;
-    int n = sequence.size();
-    int len = 1000001; 
+    vector<int> answer;
+
+    vector<pair<int,int>> v;
     int sum = 0;
-    
-    for(int i = 0; i<n; i++){
-        q.push({sequence[i],i});
-        sum += sequence[i];
-        while(sum > k){
-            sum -= q.front().first;
-            q.pop();
+    int i = 0; int j =0;
+
+    sum += sequence[0];
+
+
+    while(i < sequence.size()){
+        if(sum > k){
+            sum -= sequence[j];
+            j++;
         }
-        if(sum == k && q.size() < len){
-            len = q.size();
-            answer[0] = q.front().second;
-            answer[1] = q.back().second;
+        else if( k > sum ){
+            i++;
+            sum += sequence[i];
+        }
+        else if ( sum == k ){
+            v.push_back({j,i});
+
+            i++;
+            sum += sequence[i];
         }
     }
+    int min1 = 0; int min2 = INT_MAX;
+    for(auto t : v){
+        if( min2 - min1 > t.second - t.first){
+            min2 = t.second; min1 = t.first;
+        }
+    }
+    //cout << min1 << " " << min2;
 
+    answer.push_back(min1); answer.push_back(min2);
     return answer;
 }
