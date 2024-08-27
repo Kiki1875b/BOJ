@@ -1,52 +1,42 @@
-#include <string>
-#include <vector>
-#include <cmath>
-
+#include <bits/stdc++.h>
 using namespace std;
 
-int ans = 987654321;
-
-
-int stress(int cnt, int idx, vector<int> m){
-    int pick = (int)pow(5, 2-idx), res = 0;
-
-    for(int i = cnt*5; i<(cnt+1) * 5 && i<m.size();i++){
-        int num = m[i] / pick;
-        if(num == 0) res++;
-        else res += num;
+int calc(int pick, string mineral){
+    if(pick == 0) return 1;
+    else if(pick == 1){
+        if(mineral == "diamond") return 5;
+        else return 1;
+    }else{
+        if(mineral == "diamond") return 25;
+        else if( mineral == "iron") return 5;
+        else return 1;
     }
-
-    return res;
 }
 
-void dfs(vector<int>& picks, vector<int>& m, int count, int result){
-    if((!picks[0] && !picks[1] && !picks[2]) || count * 5 >= m.size()){
-        ans = min(result, ans);
+void DFS(vector<int>& picks, vector<string>& minerals, int& ans, int sum, int pos){
+    if((picks[0] == 0 && picks[1] == 0 && picks[2] == 0) || pos == minerals.size()){
+        ans = min(ans, sum);
         return;
     }
 
     for(int i = 0; i<3; i++){
-        if(picks[i]){
+        if(picks[i] != 0){
             picks[i]--;
-            dfs(picks, m, count + 1, result + stress(count, i, m));
+            int tmpSum = sum;
+            int tmpPos = pos;
+
+            for(;tmpPos < pos + 5 && tmpPos < minerals.size(); tmpPos++){
+                tmpSum += calc(i, minerals[tmpPos]);
+            }
+            DFS(picks, minerals, ans, tmpSum, tmpPos);
             picks[i]++;
         }
     }
 }
 
-
 int solution(vector<int> picks, vector<string> minerals) {
+    int answer = INT_MAX;
 
-
-    vector<int> m;
-    for(auto t: minerals){
-        if(t[0] == 'd') m.push_back(25);
-        else if(t[0] == 'i') m.push_back(5);
-        else m.push_back(1);
-    }
-
-    dfs(picks, m, 0,0);
-
-
-    return ans;
+    DFS(picks, minerals, answer, 0,0);
+    return answer;
 }
