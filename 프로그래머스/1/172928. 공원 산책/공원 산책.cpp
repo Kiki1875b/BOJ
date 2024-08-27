@@ -1,59 +1,56 @@
-#include <iostream>
-#include <string>
-#include <vector>
-
+#include <bits/stdc++.h>
 using namespace std;
 
+pair<int,int> south = {1,0};
+pair<int,int> north = {-1,0};
+pair<int,int> east = {0,1};
+pair<int,int> west = {0,-1};
 vector<int> solution(vector<string> park, vector<string> routes) {
     vector<int> answer;
-    int X, Y;
-    int pos[2]; pos[0] = 0; pos[1] = 0;
-    for (int i = 0 ; i < routes.size(); i++){
 
-        Y = pos[0]; X = pos[1];
+    int n = park.size();
+    int m = park[0].size();
+    pair<int,int> pos;
 
-        if(i == 0){
-            for(int j = 0; j<park.size();j++){
-                for(int k = 0; k<park[0].size();k++){
-                    if(park[j][k] == 'S'){
-                        X = k; Y = j;
-                        pos[0] = Y; pos[1] = X;
-                    }
-                }
-            }
+    for(int i =0; i<n; i++){
+        for(int j =0; j<m; j++){
+            if(park[i][j] == 'S') pos = {i,j};
         }
+    }
 
 
-        char temp = routes[i][2];
-        int num = temp - '0';
-        char direction = routes[i][0];
-        int dir[2];
+    for(auto r: routes){
+        char dir = r[0];
+        int cnt = r[2] - '0';
 
+        pair<int,int> direction;
+        if(dir == 'S') direction = south;
+        else if(dir == 'N') direction = north;
+        else if(dir == 'E') direction = east;
+        else direction = west;
+        pair<int,int> current_pos = pos;
 
-
-        if(direction == 'E'){
-
-            dir[0] = 0; dir[1] = 1;
-        }else if (direction == 'W'){
-            dir[0] = 0; dir[1] = -1;
-        }else if (direction == 'S'){
-            dir[0] = 1; dir[1] = 0;
-        }else if (direction == 'N'){
-            dir[0] = -1; dir[1] = 0;
-        }
-
-        for(int j = 0; j<num; j++){
-            pos[0] += dir[0];
-            pos[1] += dir[1];
-            if(pos[0] < 0 || pos[1] < 0 || pos[0] >= park.size() || pos[1] >= park[0].size() || park[pos[0]][pos[1]] == 'X'){
-                pos[0] = Y; pos[1] = X;
+        for(int i = 0; i<cnt; i++){
+            pair<int,int> next_pos = {pos.first + direction.first, pos.second + direction.second};
+            int a = next_pos.first;
+            int b = next_pos.second;
+            if(next_pos.first < 0 || next_pos.second < 0 || next_pos.first >= n || next_pos.second >= m) {
+                pos = current_pos;
                 break;
             }
+
+            if(park[next_pos.first][next_pos.second] == 'X') {
+                pos = current_pos;
+                break;
+            }
+
+            pos = next_pos;
         }
 
-
     }
-    answer.push_back(pos[0]); answer.push_back(pos[1]);
+
+    answer.push_back(pos.first);
+    answer.push_back(pos.second);
 
 
 
