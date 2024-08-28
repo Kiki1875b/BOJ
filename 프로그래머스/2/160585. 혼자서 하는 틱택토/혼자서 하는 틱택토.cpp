@@ -1,73 +1,50 @@
-#include <string>
-#include <vector>
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-int solution(vector<string> board) {
-    int answer = 1;
-    int oCount = 0; int xCount = 0;
-    int oWin = 0; int xWin = 0;
+bool win(vector<string>& board, char check){
+    for(int i = 0; i<3; i++){
+        if(board[i][0] == check && board[i][1] == check && board[i][2] == check) return true;
+        if(board[0][i] == check && board[1][i] == check && board[2][i] == check) return true;
+    }
+    if (board[0][0] == check 
+        && board[1][1] == check
+        && board[2][2] == check) return true;
+    
+    if(board[0][2] == check
+       && board[1][1] == check
+       && board[2][0] == check) return true;
+    
+    return false;
+}
 
-    for(int i = 0; i<board.size(); i++) {
-        for (int j = 0; j < board[0].size(); j++) {
-            if (board[i][j] == 'X') {
-                xCount++;
-            } else if (board[i][j] == 'O') {
+int solution(vector<string> board) {
+    int answer = -1;
+    
+    int xCount = 0 , oCount = 0;
+    bool possible = true;
+    bool oWin = win(board, 'O');
+    bool xWin = win(board, 'X');
+    
+    for(int i = 0; i<board.size(); i++){
+        for(int j = 0; j<board[i].length(); j++){
+            if(board[i][j] == 'O') { 
                 oCount++;
             }
-
-            if (j == 0 && board[i][j] == 'X') {
-                if (board[i][j + 1] == 'X' && board[i][j + 2] == 'X') {
-                    xWin += 1;
-                }
-            } if (j == 0 && board[i][j] == 'O') {
-                if (board[i][j + 1] == 'O' && board[i][j + 2] == 'O') {
-                    oWin += 1;
-                }
-            } if (i == 0 && board[i][j] == 'X') {
-                if (board[i + 1][j] == 'X' && board[i + 2][j] == 'X') {
-                    xWin += 1;
-                }
-            } if (i == 0 && board[i][j] == 'O') {
-                if (board[i + 1][j] == 'O' && board[i + 2][j] == 'O') {
-                    oWin += 1;
-                }
-            } if (i==0 && j==0 && board[i][j] == 'X'){
-                if(board[i+1][j+1] == 'X' && board[i+2][j+2] == 'X'){
-                    xWin +=1;
-                }
-            }if (i==0 && j==0 && board[i][j] == 'O'){
-                if(board[i+1][j+1] == 'O' && board[i+2][j+2] == 'O'){
-                    oWin +=1;
-                }
-            } if(i == 2 && j == 0 && board[i][j] == 'X'){
-                if(board[i-1][j+1] == 'X' && board[i-2][j+2] == 'X'){
-                    xWin+=1;
-                }
-            }if(i == 2 && j == 0 && board[i][j] == 'O'){
-                if(board[i-1][j+1] == 'O' && board[i-2][j+2] == 'O'){
-                    oWin+=1;
-                }
+            if(board[i][j] == 'X') { 
+                xCount++;
             }
         }
     }
-
-    if(xWin + oWin > 2) answer = 0;
-    if(xWin > 0 && oCount > xCount) answer = 0;
-    if(abs(oCount - xCount) > 1) answer = 0;
-    if(xCount > oCount) answer = 0;
-    if (oCount - xCount < 0 || oCount - xCount > 1) answer = 0;
-    if(oCount < xCount) answer = 0;
-    if(xWin > oWin && oCount > xCount){
-        answer = 0;
-    }if (xWin != 0 && oWin != 0) {
-        answer = 0;
-    }if (oWin > 0 && oCount - xCount <=0){
-        answer = 0;
-    }if(xWin > 0 && oCount != xCount){
-        answer = 0;
-    }
     
-    //cout << answer;
+    if(xCount > oCount) possible = false;
+    if(oWin && xCount == oCount) possible = false;
+    if(xWin && oCount > xCount) possible = false;
+    if(oCount - xCount >= 2) possible = false;
+    if(oWin && xWin) possible = false;
+    
+    if(possible) answer = 1;
+    else answer = 0;
+    
+    
     return answer;
 }
