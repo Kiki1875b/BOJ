@@ -36,7 +36,7 @@ int solution(vector<int> diffs, vector<int> times, long long limit) {
 
 
     int l = 1;
-    int r = 200000;
+    int r = 100000;
     int ans = INT_MAX;
 
     while (l <= r){
