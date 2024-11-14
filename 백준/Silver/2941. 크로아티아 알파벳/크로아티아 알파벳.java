@@ -5,14 +5,12 @@ import java.util.Stack;
 
 
 public class Main {
-    static Set<String> s = new HashSet<>();
 
     public static void main(String[] args) {
-
         Scanner sc = new Scanner(System.in);
-        String input = sc.nextLine();
         int ans = 0;
-
+        String input = sc.nextLine();
+        Set<String> s = new HashSet<>();
         s.add("c=");
         s.add("c-");
         s.add("dz=");
@@ -23,25 +21,23 @@ public class Main {
         s.add("z=");
 
         int left = 0;
-
         while(left < input.length()){
             boolean found = false;
-
-            for(int length = 3; length >= 1; length--){
-                if (left + length <= input.length()) {
-                    String tmp = input.substring(left, left + length);
-
-                    if (s.contains(tmp)) {
+            for(int length =3; length >=1; length--){
+                if(length + left <= input.length()){
+                    String tmp = input.substring(left, left+length);
+                    if(s.contains(tmp)){
                         left += length;
-                        ans++;
                         found = true;
+                        ans++;
                         break;
                     }
                 }
             }
+            
             if(!found){
-                ans++;
                 left++;
+                ans++;
             }
         }
         System.out.println(ans);
