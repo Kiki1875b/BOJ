@@ -3,99 +3,123 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-class Wheel {
+
+
+
+class Wheel{
     int[] state;
 
-    public Wheel(int[] state) {
+    public Wheel(int[] state){
         this.state = state;
     }
 
-    public void spin(int direction) {
-        if (direction == 1) { // Clockwise
-            int last = state[7];
-            System.arraycopy(state, 0, state, 1, 7);
-            state[0] = last;
-        } else if (direction == -1) { // Anti-clockwise
-            int first = state[0];
-            System.arraycopy(state, 1, state, 0, 7);
-            state[7] = first;
+    public void spinClockwise(){
+        int[] tmp = Arrays.copyOf(state, state.length);
+
+        for(int i = 1; i<state.length; i++){
+            state[i] = tmp[i - 1];
         }
+        state[0] = tmp[7];
     }
 
-    public int getLeft() {
+    public void spinAntiClockwise(){
+
+        int[] tmp = Arrays.copyOf(state, state.length);
+        for(int i = state.length - 2; i >= 0; i--){
+            state[i] = tmp[i + 1];
+        }
+        state[7] = tmp[0];
+    }
+
+    public int getLeft(){
         return state[6];
     }
 
-    public int getRight() {
+    public int getRight(){
         return state[2];
     }
 
-    public int getTop() {
+    public int getTop(){
         return state[0];
     }
 }
-
 public class Main {
 
     static List<Wheel> wheels = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-
-        // 톱니바퀴 상태 입력
-        for (int i = 0; i < 4; i++) {
+        int ans = 0;
+        for(int i = 0; i<4; i++){
             String[] input = bf.readLine().split("");
-            int[] tmp = Arrays.stream(input).mapToInt(Integer::parseInt).toArray();
-            wheels.add(new Wheel(tmp));
+            int[] tmp = new int[8];
+            for(int j = 0; j<input.length; j++){
+                tmp[j] = Integer.parseInt(input[j]);
+            }
+            Wheel wheel = new Wheel(tmp);
+            wheels.add(wheel);
         }
 
-        // 회전 정보 입력 및 처리
+
         int trial = Integer.parseInt(bf.readLine());
-        for (int i = 0; i < trial; i++) {
+        for(int i = 0; i<trial; i++){
             String[] input = bf.readLine().split(" ");
-            int wheelIdx = Integer.parseInt(input[0]) - 1;
-            int dir = Integer.parseInt(input[1]);
-            spin(wheelIdx, dir);
+            spin(Integer.parseInt(input[0]) - 1, Integer.parseInt(input[1]));
         }
 
-        // 점수 계산 및 출력
-        int ans = 0, point = 1;
-        for (Wheel wheel : wheels) {
-            if (wheel.getTop() == 1) ans += point;
-            point *= 2;
+
+
+        int point = 1;
+        for(Wheel wheel: wheels){
+            if(wheel.getTop() == 1) ans+=point;
+            point *=2;
         }
+
         System.out.println(ans);
+
     }
 
-    public static void spin(int wheelIdx, int dir) {
-        int[] spinDirections = new int[4];
-        spinDirections[wheelIdx] = dir;
+    public static void spin(int wheelIdx, int dir){
 
-        // 오른쪽으로 전달
+        int[] spinWhichWay = new int[4];
+        spinWhichWay[wheelIdx] = dir;
+
         int prevDir = dir;
-        for (int i = wheelIdx; i < 3; i++) {
-            if (wheels.get(i).getRight() != wheels.get(i + 1).getLeft()) {
-                prevDir = -prevDir;
-                spinDirections[i + 1] = prevDir;
-            } else {
-                break;
+
+        for(int i = wheelIdx; i < wheels.size() - 1; i++){
+            if(wheels.get(i).getRight() != wheels.get(i + 1).getLeft()){
+                spinWhichWay[i + 1] = prevDir * -1;
+                prevDir = prevDir * -1;
+            }else{
+                spinWhichWay[i + 1] = 0;
+                prevDir = 0;
+
             }
         }
 
-        // 왼쪽으로 전달
         prevDir = dir;
-        for (int i = wheelIdx; i > 0; i--) {
-            if (wheels.get(i).getLeft() != wheels.get(i - 1).getRight()) {
-                prevDir = -prevDir;
-                spinDirections[i - 1] = prevDir;
-            } else {
-                break;
+
+        for(int i = wheelIdx; i > 0; i--){
+            if(wheels.get(i).getLeft() != wheels.get(i-1).getRight()){
+                spinWhichWay[i - 1] = prevDir * -1;
+                prevDir = prevDir * -1;
+            }else{
+                spinWhichWay[i - 1] = 0;
+                prevDir = 0;
+
             }
         }
 
-        // 실제 회전 수행
-        for (int i = 0; i < 4; i++) {
-            wheels.get(i).spin(spinDirections[i]);
+
+        for(int i = 0; i<wheels.size(); i++){
+            if(spinWhichWay[i] == -1){
+                wheels.get(i).spinAntiClockwise();
+            }else if(spinWhichWay[i] == 1){
+                wheels.get(i).spinClockwise();
+            }else{
+                continue;
+            }
         }
     }
+
 }
