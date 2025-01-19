@@ -1,45 +1,55 @@
+
+
+
 #include <bits/stdc++.h>
 using namespace std;
-
 pair<int,int> RP, BP, RG, BG;
 int n, m;
-int ans = INT_MAX;  // 초기값을 최대값으로 설정합니다.
+int ans = INT_MAX;
 int dy[] = {1,-1,0,0};
 int dx[] = {0,0,1,-1};
 
+using namespace std;
 bool possible(int x, int y, vector<vector<bool>>& visited, vector<vector<int>>& maze){
     if(x < 0 || y < 0 || x >= n || y >= m) return false;
-    if(maze[x][y] == 5) return false;  // 5는 벽을 의미합니다.
+    if(maze[x][y] == 5) return false;
     if(visited[x][y]) return false;
     return true;
 }
 
-void dfs(vector<vector<int>>& maze, vector<vector<bool>>& redVisit, vector<vector<bool>>& blueVisit, pair<int,int> red, pair<int,int> blue, int cnt) {
-    if(cnt >= ans) return;  // 현재의 최소 카운트를 초과하면 중지
+void dfs(vector<vector<int>>& maze,
+         vector<vector<bool>>& redVisit,
+         vector<vector<bool>>& blueVisit,
+         pair<int,int> red, pair<int,int> blue, int cnt){
 
-    if(red == RG && blue == BG){
+
+    if(cnt >= ans) return;
+    if(RG == red && BG == blue){
         ans = min(ans, cnt);
         return;
     }
 
     for(int i = 0; i<4; i++){
         pair<int,int> nextRed = {red.first + dx[i], red.second + dy[i]};
-
         if(red == RG){
             nextRed = RG;
-        } else {
+        }
+        else{
             if(!possible(nextRed.first, nextRed.second, redVisit, maze)) continue;
         }
+        
 
         for(int j = 0; j<4; j++){
             pair<int,int> nextBlue = {blue.first + dx[j], blue.second + dy[j]};
-            if(blue == BG) {
+            if(blue == BG){
                 nextBlue = BG;
-            } else {
+            }
+            else{
                 if(!possible(nextBlue.first, nextBlue.second, blueVisit, maze)) continue;
             }
+            
 
-            if(nextBlue == nextRed || (red != RG && blue != BG && nextRed == blue && nextBlue == red)) continue;
+            if(nextRed == nextBlue || (red != RG && blue!=BG && red == nextBlue && nextRed == blue)) continue;
 
             redVisit[nextRed.first][nextRed.second] = true;
             blueVisit[nextBlue.first][nextBlue.second] = true;
@@ -50,10 +60,10 @@ void dfs(vector<vector<int>>& maze, vector<vector<bool>>& redVisit, vector<vecto
             blueVisit[nextBlue.first][nextBlue.second] = false;
         }
     }
-}
 
+}
 int solution(vector<vector<int>> maze) {
-    ans = INT_MAX;  // 초기값을 다시 설정합니다.
+
 
     for(int i = 0; i<maze.size(); i++){
         for(int j = 0; j<maze[i].size(); j++){
