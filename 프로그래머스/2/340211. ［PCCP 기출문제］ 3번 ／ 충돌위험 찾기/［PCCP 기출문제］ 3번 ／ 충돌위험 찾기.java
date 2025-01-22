@@ -1,64 +1,78 @@
+
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+class Point{
+  int x;
+  int y;
+
+  public Point(int x, int y) {
+    this.x = x;
+    this.y = y;
+  }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Point point = (Point) o;
+    return x == point.x && y == point.y;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(x, y);
+  }
+}
 
 class Solution {
+  Map<Integer, Point> pointMap = new HashMap<>();
+  Map<String, Integer> timePosMap = new HashMap<>();
 
-    Map<String, Integer> timePos; // 시간, x, y = collision  수
-    Map<Integer, Map<Integer,Integer>> m;        
-    int answer= 0;
-    public void calcDanger(int[] route){
-        int time = 0;
-        int[] last = {0,0};
+  public int solution(int[][] points, int[][] routes) {
+    int answer = 0;
 
-
-        for(int i = 0; i<route.length - 1; i++){
-            Map<Integer, Integer> startPos = m.get(route[i]);
-            Map<Integer, Integer> destPos = m.get(route[i + 1]);
-
-            int startX = startPos.keySet().iterator().next();
-            int startY = startPos.get(startX);
-
-            int destX = destPos.keySet().iterator().next();
-            int destY = destPos.get(destX);
-
-            while(startX != destX || startY != destY){
-
-                String key = time+"-"+startX+"-"+startY;
-                timePos.put(key, timePos.getOrDefault(key, 0) + 1);
-                if(timePos.get(key) == 2) answer++;
-                
-                if(startX < destX) startX++;
-                else if(startX > destX) startX--;
-                else if(startY < destY) startY++;
-                else if(startY > destY) startY--;
-
-                time++;
-                last[0] = startX;
-                last[1] = startY;
-            }
-        }
-        
-        String key = time+"-"+last[0]+"-"+last[1];
-        timePos.put(key, timePos.getOrDefault(key, 0) + 1);
-        if(timePos.get(key) == 2) answer++;
+    for(int i = 0; i<points.length; i++){
+      pointMap.put(i + 1, new Point(points[i][0], points[i][1]));
     }
-    public int solution(int[][] points, int[][] routes) {
 
-        m = new HashMap<>();
-        timePos = new HashMap<>();
-
-        for(int i = 0; i<points.length; i++){
-            for(int j = 0; j<points[0].length; j++){
-                Map<Integer, Integer> tmp = new HashMap<>();
-                tmp.put(points[i][0], points[i][1]);
-                m.put(i + 1, tmp);
-            }
-        }
-
-        for(int i = 0; i<routes.length; i++){
-            calcDanger(routes[i]);
-        }
-
-        return answer;
+    for(int i = 0; i<routes.length; i++){
+      simulate(routes[i]);
     }
+
+    for(int val : timePosMap.values()){
+      if(val > 1) answer++;
+    }
+    //System.out.println(timePosMap);
+    return answer;
+  }
+
+  void simulate(int[] path){
+    
+    int time = 0;
+    
+    for(int i = 0; i<path.length - 1; i++){
+
+      Point start = pointMap.get(path[i]);
+      Point cur = new Point(start.x, start.y);
+      Point goal = pointMap.get(path[i + 1]);
+
+      while(!cur.equals(goal)){
+        recordPosition(time, cur);
+        if(cur.x < goal.x) cur.x++;
+        else if(cur.x > goal.x) cur.x--;
+        else if(cur.y < goal.y) cur.y++;
+        else if(cur.y > goal.y) cur.y--;
+        time++;
+      }
+    }
+
+    recordPosition(time, pointMap.get(path[path.length - 1]));
+  }
+  
+  void recordPosition(int time, Point cur){
+    String key = time+"-"+cur.x+"-"+cur.y;
+    timePosMap.put(key, timePosMap.getOrDefault(key, 0) + 1);
+  }
 }
