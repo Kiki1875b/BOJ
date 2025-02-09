@@ -1,69 +1,65 @@
 import java.util.*;
 
-/**
-
- */
-
-class Time{
-  int start, end;
-  public Time(int start, int end){
-    this.start = start;
-    this.end = end;
-  }
-
-}
-
-class Pair{
-  int time;
-  int value;
-
-  public Pair(int time, int value) {
-    this.time = time;
-    this.value = value;
-  }
-
-  @Override
-  public String toString() {
-    return "Pair{" +
-        "time=" + time +
-        ", value=" + value +
-        '}';
-  }
-}
 class Solution {
-  public int solution(String[][] book_time) {
-    int answer = 0;
-    List<Time> times = new ArrayList<>();
 
-    for (String[] singleTime : book_time){
-      String[] startTime = singleTime[0].split(":");
-      String[] endTime = singleTime[1].split(":");
-      int startTimeInt = (Integer.parseInt(startTime[0]) * 60) + Integer.parseInt(startTime[1]);
-      int endTimeInt = (Integer.parseInt(endTime[0]) * 60) + Integer.parseInt(endTime[1]) + 10;
+    int[][] formatted;
+    int width, height;
 
-      times.add(new Time(startTimeInt, endTimeInt));
+    public int[] formatTime(String[] time){
+        String[] start = time[0].split(":");
+        String[] end = time[1].split(":");
+
+        int[] ret = new int[2];
+
+        ret[0] = Integer.parseInt(start[0]) * 60 + Integer.parseInt(start[1]);
+        ret[1] = Integer.parseInt(end[0]) * 60 + Integer.parseInt(end[1]) + 10;
+
+        return ret;
     }
 
-    int cnt = 0;
+    public int solution(String[][] book_time) {
+        int answer = 0;
 
-    List<Pair> list = new ArrayList<>();
+        Map<Integer, Integer> m = new TreeMap<>();
 
-    for(Time t : times){
-      list.add(new Pair(t.start, 1));
-      list.add(new Pair(t.end, -1));
+        height = book_time.length;
+        width = book_time[0].length;
+        formatted = new int[height][width];
+
+        for(int i = 0; i<height; i++){
+            int[] tmp = formatTime(book_time[i]);
+            formatted[i] = tmp;
+        }
+
+        for(int[] i : formatted){
+            if(!m.containsKey(i[0])){
+                m.put(i[0], 1);
+            }else{
+                m.put(i[0], m.get(i[0]) + 1);
+            }
+
+            if(!m.containsKey(i[1])){
+                m.put(i[1], -1);
+            }else{
+                m.put(i[1], m.get(i[1])- 1);
+            }
+        }
+
+
+        int tmp = 0;
+
+        Iterator<Map.Entry<Integer,Integer>> it = m.entrySet().iterator();
+        while(it.hasNext()){
+            
+            Map.Entry<Integer, Integer> tmpMap = it.next();
+            tmp += tmpMap.getValue();
+            answer = Math.max(tmp, answer);
+        }
+
+
+
+
+
+        return answer;
     }
-
-    Collections.sort(list, (a, b) ->{
-      if(a.time == b.time) return a.value - b.value;
-      return a.time - b.time;
-    });
-
-    //System.out.println(list);
-    for(Pair p : list){
-      cnt += p.value;
-      answer = Math.max(answer, cnt);
-    }
-
-    return answer;
-  }
 }
