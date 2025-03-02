@@ -1,69 +1,110 @@
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+
+/**
+ * 1 x 1 격자 형태 미로
+ * 각 칸은
+ *    S : 시작
+ *    E : 레버
+ *    O : 통로
+ *    X : 벽
+ *
+ * 출발지점 -> 레버 -> 출구의 가장 빠른 시간
+ */
+
+class P {
+  int x, y, cost;
+
+  public P(int x, int y, int cost) {
+    this.x = x;
+    this.y = y;
+    this.cost = cost;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    P p = (P) o;
+    return x == p.x && y == p.y;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(x, y);
+  }
+}
 
 class Solution {
-    int[] dx = {-1,1,0,0};
-    int[] dy = {0,0,1,-1};
-    int width, height;
-    int[] start = {0,0};
-    int[] lever = {0,0};
-    int[] goal = {0,0};
+  int height, width;
+  P start, end, lever;
+  Map<P, Integer> dist = new HashMap();
 
-    public int bfs(String[] maps, int[] curStart, int[] curGoal){
-        Queue<int[]> queue = new LinkedList<>();
-        boolean[][] visited = new boolean[height][width];
-        queue.add(new int[]{curStart[0], curStart[1], 0});
+  boolean[][] visited;
+  int[] dx = {1,-1,0,0};
+  int[] dy = {0,0,1,-1};
+  public int solution(String[] maps) {
+    int answer = 0;
 
-        while(!queue.isEmpty()){
-            int[] cur = queue.poll();
-            int curX = cur[0];
-            int curY = cur[1];
-            int cost = cur[2];
-            
-            if(curX == curGoal[0] && curY == curGoal[1]){
-                return cost;
-            }
-            for(int i = 0; i<4; i++){
-                int nx = curX + dx[i];
-                int ny = curY + dy[i];
-                
-                if(nx < 0 || ny < 0 || nx >= height || ny >= width) continue;
-                if(maps[nx].charAt(ny) == 'X') continue;
-                if(visited[nx][ny]) continue;
-                
-                visited[nx][ny] = true;
-                queue.add(new int[]{nx,ny,cost + 1});
-                    
-            }
-        }
-        
-        return -1;
+    height = maps.length;
+    width = maps[0].length();
+
+    visited = new boolean[height][width];
+
+    for(int i = 0; i < height; i++) {
+      for(int j = 0 ; j< width; j++){
+        if(maps[i].charAt(j) == 'S') start = new P(i,j, 0);
+        else if(maps[i].charAt(j) == 'E') end = new P(i,j, 0);
+        else if(maps[i].charAt(j) == 'L') lever = new P(i,j, 0);
+      }
     }
 
-    public int solution(String[] maps) {
-        int answer = 0;
-        height = maps.length;
-        width = maps[0].length();
-
-        for(int i = 0; i<height; i++){
-            for(int j = 0; j < width; j++){
-                if(maps[i].charAt(j) == 'S') {
-                    start[0] = i;
-                    start[1] = j;
-                }else if(maps[i].charAt(j) == 'L'){
-                    lever[0] = i;
-                    lever[1] = j;
-                }else if(maps[i].charAt(j) == 'E'){
-                    goal[0] = i;
-                    goal[1] = j;
-                }
-            }
-        }
-
-        int stoL = bfs(maps, start, lever);
-        int ltoG = bfs(maps, lever, goal);
+    int first = bfs(start, lever, maps);
 
 
-        return (stoL == -1 || ltoG == -1) ? -1 : stoL + ltoG;
+    for(int i =0 ; i<height; i++) {
+      Arrays.fill(visited[i], false);
     }
+
+    int second = bfs(lever, end, maps);
+
+
+    if(first == -1 || second == -1) return -1;
+    
+
+    return first+ second;
+  }
+
+  int bfs(P start, P end, String[] maps){
+
+    Queue<P> q = new LinkedList<>();
+    q.offer(new P(start.x, start.y, 0));
+    visited[start.x][start.y] = true;
+
+    while(!q.isEmpty()){
+      P cur = q.poll();
+
+      int x = cur.x;
+      int y = cur.y;
+      int curCost = cur.cost;
+
+      if(x == end.x && y == end.y) return curCost;
+
+      for(int i =0 ; i<4; i++){
+
+        int nx = x + dx[i];
+        int ny = y + dy[i];
+        int nCost = curCost + 1;
+        P np = new P(nx, ny, nCost);
+
+        if(nx < 0 || ny < 0 || nx >= height || ny >= width) continue;
+        if(maps[nx].charAt(ny) == 'X') continue;
+        if(visited[nx][ny]) continue;
+        q.offer(np);
+        visited[nx][ny] = true;
+
+      }
+    }
+    return -1;
+  }
+
 }
