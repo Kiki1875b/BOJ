@@ -1,17 +1,16 @@
-import java.util.*;
+import java.util.Arrays;
 
 class Solution {
     public int solution(int k, int m, int[] score) {
-  Arrays.sort(score);
-        
-        int profit = 0;
-        int n = score.length;
+    int answer = 0;
 
+    Arrays.sort(score);
 
-        for (int i = n - m; i >= 0; i -= m) {
-            profit += score[i] * m;
-        }
+    for(int i = score.length; i >= m; i -= m){
+      int lowestScore = score[i - m];
+      answer += lowestScore * m;
+    }
 
-        return profit;
+    return answer;
     }
 }
