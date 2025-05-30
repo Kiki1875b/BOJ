@@ -1,4 +1,3 @@
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +17,7 @@ import java.util.Stack;
  */
 
 
-class Node{
+class Node {
   int participants;
   int left;
   int right;
@@ -31,75 +30,71 @@ class Node{
 }
 class Solution {
 
-  int groupCount;
-
+  int cnt;
   public int solution(int k, int[] num, int[][] links) {
-
+    int n = links.length;
+    
     List<Node> nodes = new ArrayList<>();
     Set<Integer> children = new HashSet<>();
-    int n = links.length;
-
     for(int i = 0; i<n; i++){
-      children.add(links[i][0]);
-      children.add(links[i][1]);
-      nodes.add(new Node(num[i], links[i][0], links[i][1]));
+        children.add(links[i][0]);
+        children.add(links[i][1]);
+        nodes.add(
+            new Node(num[i], links[i][0], links[i][1])
+        );
     }
-
-    int root = 0;
-    for(int i = 0; i<n; i++){
+    
+    int root = -1;
+    for(int i = 0; i< n; i++){
       if(!children.contains(i)){
         root = i;
         break;
       }
     }
-
+    
     int left = Arrays.stream(num).max().getAsInt();
-    int right =Arrays.stream(num).sum();
-    int ans = right;
-
-    while(left <= right)  {
-      int mid = (left + right)  / 2;
-
-      groupCount = 1;
-
-      int res = dfs(nodes.get(root), nodes, k, mid);
-
-      if(res == -1 || groupCount > k){
+    int right = Arrays.stream(num)  .sum();
+    int ans = right ;
+    
+    while(left <= right){
+      cnt = 1;
+      int mid = (left + right)/2;
+      int res = dfs(nodes.get(root), nodes, k, mid  );
+      
+      if(res == -1 || cnt > k){
         left = mid + 1;
       }else{
         ans = Math.min(ans, mid);
         right = mid - 1;
       }
     }
-
+    
     return ans;
   }
-
-
-
+  
   int dfs(Node node, List<Node> nodes, int k, int limit){
-    if(groupCount > k) return  -1;
-
+    if(cnt > k ) return -1;
+    
     int leftSum = node.left == -1 ? 0 : dfs(nodes.get(node.left), nodes, k, limit);
     if(leftSum == -1) return -1;
-    int rightSum = node.right == -1 ? 0 : dfs(nodes.get(node.right), nodes, k, limit);
+    
+    int rightSum = node.right == -1 ? 0 : dfs(nodes.get(node.right), nodes, k , limit);
     if(rightSum == -1) return -1;
-
-    int sum =leftSum + rightSum;
-
+    
+    int sum = leftSum + rightSum;
+    
     if(sum + node.participants > limit){
-      groupCount++;
+      cnt++;
       sum -= Math.max(leftSum, rightSum);
     }
-
+    
     if(sum + node.participants > limit){
-      groupCount++;
+      cnt++;
       sum = 0;
     }
-
+    
     return sum + node.participants;
   }
 
 
 }
-
