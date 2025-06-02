@@ -1,6 +1,6 @@
 # [level 3] [카카오 인턴] 보석 쇼핑 - 67258 
 
-[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/67258?language=java) 
+[문제 링크](https://school.programmers.co.kr/learn/courses/30/lessons/67258?language=swift&gad_source=1&gad_campaignid=22499034228&gbraid=0AAAAAC_c4nBnji8HT3jMJVWiXa1jwEERK&gclid=CjwKCAjwl_XBBhAUEiwAWK2hzvj3lycMSYoIGTwRpuvCBy-8nzMN-R1KEItwVAfYBa5DpaNvCcyVEhoCtRYQAvD_BwE) 
 
 ### 성능 요약
 
@@ -16,7 +16,7 @@
 
 ### 제출 일자
 
-2025년 06월 02일 18:57:08
+2025년 06월 02일 18:57:42
 
 ### 문제 설명
 
