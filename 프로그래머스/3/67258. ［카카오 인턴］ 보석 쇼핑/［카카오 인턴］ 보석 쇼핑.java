@@ -14,35 +14,31 @@ import java.util.Set;
  */
 class Solution {
   public int[] solution(String[] gems) {
-
     Set<String> unique = new HashSet<>(Arrays.asList(gems));
-    Map<String, Integer> window = new HashMap<>();
     int totalTypes = unique.size();
+    Map<String , Integer> window = new HashMap<>();
 
     int left = 0, right = 0;
     int minDiff = Integer.MAX_VALUE;
-    int[] ans = {1, gems.length};
-    
+    int[] ans = new int[]{1, gems.length};
+
     while(right < gems.length){
-      window.put(gems[right], window.getOrDefault(gems[right], 0) + 1);
+      window.put(gems[right], window.getOrDefault(gems[right], 0)+1 );
       right++;
-      
+
       while(window.size() == totalTypes){
         if(right - left < minDiff){
-          minDiff = right - left;
+          minDiff = right - left  ;
           ans[0] = left + 1;
           ans[1] = right;
         }
-        
+
         window.put(gems[left], window.get(gems[left]) - 1);
-        if(window.get(gems[left]) == 0){
-          window.remove(gems[left]);
-        }
+        if(window.get(gems[left]) == 0) window.remove(gems[left]);
+
         left++;
       }
     }
-    
     return ans;
   }
 }
-
