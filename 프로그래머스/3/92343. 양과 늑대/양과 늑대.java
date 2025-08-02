@@ -1,44 +1,62 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 
-public class Solution {
-
-  List<List<Integer>> nodes = new ArrayList<>();
-  int maxSheepCount = 0;
-  public int solution(int[] info, int[][] edges) {
-    for(int i = 0; i<info.length; i++){
-      nodes.add(new ArrayList<>());
-    }
-
-    for(int i = 0; i<edges.length; i++){
-      nodes.get(edges[i][0]).add(edges[i][1]);
-    }
-
-    List<Integer> toSearch = new ArrayList<>();
-    toSearch.add(0);
-    search(toSearch, info, 0,0,0);
-    
-    return maxSheepCount;
+class Node{
+  boolean isSheep;
+  List<Integer> children;
+  public Node(boolean isSheep) {
+    this.isSheep = isSheep;
+    this.children = new ArrayList<>();
   }
-  
-  void search(List<Integer> toSearch, int[] info, int current, int wolf, int sheep){
-    if(info[current] == 0) sheep++;
-    else wolf++;
-    
-    if(wolf >= sheep) return;
-    maxSheepCount = Math.max(maxSheepCount, sheep);
-    
-    toSearch.addAll(nodes.get(current));
-    toSearch.remove(Integer.valueOf(current));
-    
-    for(int i = 0; i<toSearch.size(); i++){
-      int next = toSearch.get(i);
-      List<Integer> newToSearch = new ArrayList<>(toSearch);
-      search(newToSearch, info, next, wolf, sheep);
+
+}
+class Solution {
+
+  List<Node> nodes = new ArrayList<>();
+  int ans = 0;
+  public int solution(int[] info, int[][] edges) {
+    int answer = 0;
+
+    for(int i = 0 ; i<info.length; i++){
+      nodes.add(new Node(info[i] == 0));
+    }
+
+    for(int i = 0; i< edges.length; i++){
+      nodes.get(edges[i][0]).children.add(edges[i][1]);
+    }
+
+    dfs(0, 0, 0, new ArrayList<>());
+
+    return ans;
+  }
+
+  void dfs(int root, int sheepCnt, int wolfCnt, List<Integer> toSearch){
+
+    if(nodes.get(root).isSheep){
+      sheepCnt++;
+    }else{
+      wolfCnt++;
+    }
+
+    if (wolfCnt >= sheepCnt) {
+     return;
+    }
+
+    ans = Math.max(sheepCnt, ans);
+
+    List<Integer> newToSearch = new ArrayList<>(toSearch);
+    newToSearch.addAll(nodes.get(root).children);
+    newToSearch.remove(Integer.valueOf(root));
+
+    for(int nextNode: newToSearch){
+      dfs(nextNode, sheepCnt, wolfCnt, newToSearch);
     }
   }
 }
