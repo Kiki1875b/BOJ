@@ -1,90 +1,98 @@
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 
 class Node{
-  int participant, left, right;
+  int num;
+  int left;
+  int right;
+  int people;
+  int sum;
 
-  public Node(int participant, int left, int right) {
-    this.participant = participant;
+  public Node(int num, int left, int right, int people) {
+    this.num = num;
     this.left = left;
     this.right = right;
+    this.people = people;
+  }
+
+  public void setSum(int sum){
+    this.sum = sum;
   }
 }
 class Solution {
-
+  List<Node> nodes = new ArrayList<>();
   int cnt = 0;
   public int solution(int k, int[] num, int[][] links) {
-    int n = links.length;
-    List<Node> nodes = new ArrayList<>();
-    Set<Integer> children = new HashSet<>();
-    for(int i = 0; i<n; i++){
-      children.add(links[i][0]);
-      children.add(links[i][1]);
-      nodes.add(new Node(num[i], links[i][0], links[i][1]));
+    int answer = Integer.MAX_VALUE;
+
+    Set<Integer> s = new HashSet<>();
+
+    int rootNum = -1;
+    int sum = 0;
+
+    for(int i = 0; i < num.length; i++){
+      s.add(links[i][0]); s.add(links[i][1]);
+      sum += num[i];
+      Node newNode = new Node(i, links[i][0], links[i][1], num[i]);
+      nodes.add(newNode);
     }
 
-
-    int root = 0;
-    for(int i = 0 ; i<n ; i++){
-      if(!children.contains(i)){
-        root = i;
+    for(int i = 0; i<links.length; i++){
+      if(s.contains(i)) continue;
+      else{
+        rootNum = i;
         break;
       }
     }
 
-    int left = Arrays.stream(num).max().getAsInt();
-    int right = Arrays.stream(num).sum();
-    int ans = right;
+//    calculateNodeSum(rootNum);
+
+    int left = 0;
+    int right = sum;
 
     while(left <= right){
-
-      int mid = (left + right) / 2;
-
       cnt = 1;
-      int res = dfs(k, nodes.get(root), nodes, mid);
-
-      if(res == -1 || cnt > k){
-        left = mid + 1;
-      } else {
-
-        ans = Math.min(mid, ans)  ;
+      int mid = (left + right) / 2;
+      if(isPossible(mid, k, rootNum) != -1){
+        answer = Math.min(answer, mid);
         right = mid - 1;
+      }else{
+        left = mid + 1;
       }
     }
 
-    return ans;
+
+    return answer;
   }
 
-  int dfs(int k, Node current, List<Node> nodes, int limit){
+  int isPossible(int mid, int k, int root){ // 각 그룹이 mid명 이내가 되도록 나눌 수 있는지?
+      if (nodes.get(root).people > mid) return -1;
+    int leftSum = nodes.get(root).left == -1 ? 0 : isPossible(mid, k, nodes.get(root).left);
+    if(leftSum == -1) return -1;
+    int rightSum = nodes.get(root).right == -1 ? 0 : isPossible(mid, k, nodes.get(root).right);
+    if(rightSum == -1) return -1;
+    int totalSum = leftSum + rightSum + nodes.get(root).people;
+
+    if (totalSum > mid){
+      totalSum -= Math.max(leftSum, rightSum);
+      cnt++;
+    }
+
+    if(totalSum > mid){
+      totalSum -= Math.min(leftSum, rightSum);
+      cnt++;
+    }
+
     if(cnt > k) return -1;
 
-    int leftSum = current.left == -1 ? 0 : dfs(k, nodes.get(current.left), nodes, limit);
-    if(leftSum == -1) return -1;
-    int rightSum = current.right == -1 ? 0 : dfs(k, nodes.get(current.right), nodes, limit);
-    if(rightSum == -1) return -1;
-    int sum = leftSum + rightSum;
-
-
-    if(sum + current.participant > limit){
-      cnt++;
-      sum -= Math.max(leftSum, rightSum);
-    }
-
-    if(sum + current.participant > limit){
-      cnt++;
-      sum = 0;
-    }
-
-    return sum + current.participant;
+    return totalSum;
   }
-
 
 
 }
