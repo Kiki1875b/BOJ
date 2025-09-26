@@ -1,0 +1,14 @@
+WITH ranked AS (
+    SELECT e.ID, 
+    NTILE(4) OVER (ORDER BY e.SIZE_OF_COLONY DESC) AS quartile
+    FROM ECOLI_DATA e
+)
+SELECT ID, 
+    CASE quartile
+        WHEN 1 THEN 'CRITICAL'
+        WHEN 2 THEN 'HIGH'
+        WHEN 3 THEN 'MEDIUM'
+        WHEN 4 THEN 'LOW'
+    END AS COLONY_NAME
+FROM ranked
+ORDER BY ID ASC
