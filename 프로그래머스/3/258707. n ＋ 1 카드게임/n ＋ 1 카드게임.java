@@ -1,74 +1,125 @@
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-
-/**
- * 1 ~ n 사이 정수 카드
- * 동전 coin 개
- *
- * 시작 : n/3 장의 카드를 가진다
- * 각 라운드당 카드를 뽑는다
- *    1. 둘다 버리기
- *    2. 코인을 소모해 한장
- *    3. 코인을 둘 소모해 두장
- * 각 라운드당 적힌 수의 합이 n + 1 이 되도록 카드 두장을 내야한다
- * 두 장을 낼 수 없다면 종료
- *
- * 최대 라운드를 구해야 한다
- */
 class Solution {
+    public int solution(int coin, int[] cards) {
+        int n = cards.length;
+        int target = n + 1;
 
-  Set<Integer> hand = new HashSet<>();
-  Set<Integer> deck = new HashSet<>();
-  int n = 0;
-  int target = 0;
+        // 초기 hand: 앞의 n/3장
+        Set<Integer> hand = new HashSet<>();
+        for (int i = 0; i < n / 3; i++) hand.add(cards[i]);
 
-  public int solution(int coin, int[] cards) {
-    int answer = 1;
+        // deck 큐: 나머지 카드
+        Queue<Integer> deck = new LinkedList<>();
+        for (int i = n / 3; i < n; i++) deck.add(cards[i]);
 
-    n = cards.length;
-    int curIdx = n/3;
-    target = n+1;
-    for(int i = 0; i<n/3; i++){
-      hand.add(cards[i]);
+        // 공개되었지만 아직 '손에 들지 않은' 카드 보관 큐
+        // (remove(Object) 써야 하므로 LinkedList 유지)
+        Queue<Integer> toDecide = new LinkedList<>();
+
+        int rounds = 0;
+
+        while (deck.size() >= 2) {
+            // 라운드 시작: 두 장 공개 (아직 손패 아님)
+            int c1 = deck.poll();
+            int c2 = deck.poll();
+            toDecide.add(c1);
+            toDecide.add(c2);
+
+            boolean progressed = false;
+
+            // 0코인: hand 안에서 바로 페어
+            int[] hp = findHandPair(hand, target);
+            if (hp != null) {
+                hand.remove(hp[0]);
+                hand.remove(hp[1]);
+                rounds++;
+                progressed = true;
+            } else {
+                // 1코인: hand + toDecide (공개 카드 한 장 구매)
+                if (!progressed && coin >= 1) {
+                    Integer[] hpp = findHandPoolPair(hand, toDecide, target);
+                    if (hpp != null) {
+                        hand.remove(hpp[0]);              // hand카드 사용
+                        removeOneFromQueue(toDecide, hpp[1]); // 공개 카드 1장 구매
+                        coin -= 1;
+                        rounds++;
+                        progressed = true;
+                    }
+                }
+                // 2코인: toDecide + toDecide (공개 카드 두 장 구매)
+                if (!progressed && coin >= 2) {
+                    Integer[] pp = findPoolPair(toDecide, target);
+                    if (pp != null) {
+                        removeOneFromQueue(toDecide, pp[0]);
+                        removeOneFromQueue(toDecide, pp[1]);
+                        coin -= 2;
+                        rounds++;
+                        progressed = true;
+                    }
+                }
+            }
+
+            if (!progressed) break; // 이 라운드에 못 냈으면 종료
+        }
+
+        return rounds + 1; // 첫 라운드도 실패하면 0 반환
     }
 
-    while(curIdx < n){
-      for(int i = 0; i<2; i++){
-        deck.add(cards[curIdx]);
-        curIdx++;
-      }
-
-      if(hand.size() >= 2 && isPossible(hand, hand)){
-        answer++;
-      }else if(hand.size() >= 1 && deck.size() >= 1 && coin >= 1 && isPossible(hand,deck)){
-        answer++;
-        coin--;
-      }else if(deck.size() >= 2 && coin >= 2 && isPossible(deck, deck)){
-        answer++;
-        coin -= 2;
-      }else{
-        break;
-      }
+    // hand 내부에서 target을 만드는 임의 한 쌍 찾기 (x != y)
+    private int[] findHandPair(Set<Integer> hand, int target) {
+        for (int x : hand) {
+            int y = target - x;
+            if (y != x && hand.contains(y)) {
+                return new int[]{x, y};
+            }
+        }
+        return null;
     }
-    return answer;
-  }
 
-  /**
-   * 손에 있는 카드만으로 해결 : hand , hand
-   * 손 + 덱 : hand, deck
-   * */
-  boolean isPossible(Set<Integer> s1, Set<Integer> s2){
-    for(int num : s1){
-      if(s2.contains(target - num)){
-        s1.remove(num);
-        s2.remove(target - num);
-        return true;
-      }
+    // hand의 x + (toDecide의 need) = target 되는 쌍 찾기
+    private Integer[] findHandPoolPair(Set<Integer> hand, Queue<Integer> toDecide, int target) {
+        if (toDecide.isEmpty()) return null;
+        // toDecide 조회용 Set (큐 자체는 보존)
+        HashSet<Integer> poolSet = new HashSet<>(toDecide);
+        for (int x : hand) {
+            int need = target - x;
+            if (need != x && poolSet.contains(need)) {
+                return new Integer[]{x, need};
+            }
+        }
+        return null;
     }
-    return false;
-  }
+
+    // toDecide 내부에서 target을 만드는 임의 한 쌍 찾기
+    private Integer[] findPoolPair(Queue<Integer> toDecide, int target) {
+        if (toDecide.size() < 2) return null;
+        HashSet<Integer> poolSet = new HashSet<>(toDecide);
+        for (int x : toDecide) {
+            int y = target - x;
+            if (y != x && poolSet.contains(y)) {
+                return new Integer[]{x, y};
+            }
+        }
+        return null;
+    }
+
+    // Queue에서 특정 값 하나를 제거 (맨 앞부터 스캔)
+    private void removeOneFromQueue(Queue<Integer> q, int val) {
+        int sz = q.size();
+        for (int i = 0; i < sz; i++) {
+            int cur = q.poll();
+            if (cur == val) {
+                // 해당 원소 하나만 제거하고 나머지는 복원
+                // (중복이 없다는 문제 조건 덕분에 충분)
+                while (i + 1 < sz) {
+                    q.add(q.poll());
+                    i++;
+                }
+                return;
+            } else {
+                q.add(cur);
+            }
+        }
+    }
 }
