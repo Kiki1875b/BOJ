@@ -13,22 +13,25 @@ class Main {
         int k = Integer.parseInt(input[1]);
         
         int[] coins = new int[n];
-        for(int i = 0; i<n; i++){
+        int[] dp = new int[k + 1];
+        
+        for(int i = 0 ; i< coins.length; i++){
             coins[i] = Integer.parseInt(br.readLine());
         }
         
-        int[] dp = new int[k + 1];
-        for(int i = 1; i<dp.length; i++) dp[i] = Integer.MAX_VALUE;
-        dp[0]=0;
-        for(int coin: coins) {
-            for(int i = coin; i<=k; i ++){
-                if(dp[i - coin] != Integer.MAX_VALUE){
-                    dp[i] = Math.min(dp[i], dp[i - coin] + 1);
-                }
+        dp[0] = 0;
+        for(int i = 1; i <= k; i++) dp[i] = Integer.MAX_VALUE;
         
+        for(int coin : coins){
+            for(int i = coin; i<=k; i++){
+                if(dp[i - coin] != Integer.MAX_VALUE){
+                    dp[i] = Math.min(dp[i - coin] + 1, dp[i]);
+                }
             }
         }
         
-        System.out.println(dp[k] == Integer.MAX_VALUE ? -1 : dp[k]);
+        int ans = dp[k] == Integer.MAX_VALUE ? -1 : dp[k];
+        
+        System.out.println(ans);
     }
 }
