@@ -2,22 +2,32 @@ import java.util.*;
 
 class Solution {
     public int solution(int[] people, int limit) {
-        Arrays.sort(people); // 몸무게 순으로 정렬
+        int answer = 0;
+        List<Integer> p = new ArrayList<>();
         
-        int left = 0;
-        int right = people.length - 1;
-        int boatCount = 0;
+        for(int person : people) p.add(person);
         
-        while (left <= right) {
-            if (people[left] + people[right] <= limit) {
-                left++; 
-            }
- 
-            right--;
+        
+        Collections.sort(p);
+        
+        int l = 0; int r = p.size() - 1;
+        int cnt = 0;
+        
+        while(l <= r){
+            int left = p.get(l);
+            int right = p.get(r);
             
-            boatCount++;
+            if(left + right > limit) {
+                cnt++;
+                r--;
+            } else if(left + right <= limit){
+                cnt++;
+                r--; l++;
+            }
+            
+            
         }
         
-        return boatCount;
+        return cnt;
     }
 }
