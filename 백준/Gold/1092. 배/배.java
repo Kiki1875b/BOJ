@@ -21,10 +21,9 @@ class Main {
         for(int i = 0; i<M; i++){
             boxes[i] = Integer.parseInt(input[i]);
         }
-        
+
         Arrays.sort(boxes, Collections.reverseOrder());
         Arrays.sort(crains);
-        
         if(crains[N - 1] < boxes[0]) {
             System.out.println(-1);
             return;
@@ -35,21 +34,21 @@ class Main {
         
         while(moved < M){
             int boxIdx = 0;
-            for(int i = N - 1; i>=0; i--){
-                while(boxIdx < M) {
+            for(int i = N - 1; i >= 0; i--){
+                while(boxIdx < M){
                     if(!visited[boxIdx] && crains[i] >= boxes[boxIdx]){
-                        visited[boxIdx] = true;
                         moved++;
+                        visited[boxIdx] = true;
                         boxIdx++;
-                        
                         break;
                     }
                     boxIdx++;
                 }
+                
+                
             }
             t++;
         }
-        
         System.out.println(t);
     }
 }
