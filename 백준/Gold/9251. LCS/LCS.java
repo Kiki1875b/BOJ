@@ -5,42 +5,29 @@ class Main {
     
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String s1 = br.readLine();
+        String s2 = br.readLine();
         
-        String input = br.readLine();
-        String input2=  br.readLine();
+        int n = s1.length();
+        int m = s2.length();
         
-        int n = input.length();
-        int m = input2.length();
-        int[][] dp = new int[n][m];
-        
-        dp[0][0] = input.charAt(0) == input2.charAt(0) ? 1 : 0;
-        
-        for(int i = 1; i<n; i++){
-            if(input.charAt(i) == input2.charAt(0)){
-                dp[i][0] = 1;
-            }else{
-                dp[i][0] = dp[i - 1][0];
-            }
+        if(s1.equals("") || s2.equals("")){
+            System.out.println(0);
+            return;
         }
         
-        for(int i = 1; i<m; i++){
-            if(input.charAt(0) == input2.charAt(i)){
-                dp[0][i] = 1;
-            }else{
-                dp[0][i] = dp[0][i - 1];
-            }
-        }
-        
-        for(int i = 1; i<n; i++){
-            for(int j = 1; j<m; j++){
-                if(input.charAt(i) == input2.charAt(j)){
+        int[][] dp = new int[n + 1][m + 1];
+
+        for(int i = 1; i<=n; i++){
+            for(int j = 1; j<=m; j++){
+                if(s1.charAt(i - 1) == s2.charAt(j - 1)) {
                     dp[i][j] = dp[i - 1][j - 1]+ 1;
-                }else{
+                }else {
                     dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
                 }
             }
         }
-        
-        System.out.println(dp[n - 1][m - 1]);
+    
+        System.out.println(dp[n][m]);
     }
 }
