@@ -1,52 +1,51 @@
 import java.util.*;
+import java.io.*;
 
-class Document{
-    int originalIdx;
-    int importance;
+class Main {
+    
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int T = Integer.parseInt(br.readLine());
+        
+        for(int t= 0; t<T; t++){
+            Queue<int[]> q = new LinkedList<>();
+            PriorityQueue<Integer> pq = new PriorityQueue<>((a,b) -> (b- a));
+            String[] s = br.readLine().split(" ");
+            
+            int N = Integer.parseInt(s[0]);
+            int target = Integer.parseInt(s[1]);
+            
+            
+            s = br.readLine().split(" ");
 
-    public Document(int originalIdx, int importance){
-        this.importance = importance;
-        this.originalIdx = originalIdx;
-
-    }
-}
-
-public class Main {
-
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int trial = sc.nextInt();
-
-        for(int t = 0; t<trial ;t++){
-            int numberOfDocs = sc.nextInt();
-            int target = sc.nextInt();
-
-            Queue<Document> queue = new LinkedList<>();
-            PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());
-
-            for(int i = 0; i < numberOfDocs; i++){
-                int importance = sc.nextInt();
-                queue.add(new Document(i, importance));
-                pq.add(importance);
+            for(int j =0; j<s.length; j++){
+                q.add(new int[]{j, Integer.parseInt(s[j])});
+                pq.add(Integer.parseInt(s[j]));
             }
-
-            int printOrder = 0;
-            while(!queue.isEmpty()){
-                Document doc = queue.poll();
-
-                if(doc.importance == pq.peek()){
+            
+            
+            int cnt = 1;
+            
+            while(!pq.isEmpty()){
+                int[] cur = q.poll();
+                if(cur[1] != pq.peek()){
+                    q.add(cur);
+                }else if (cur[1] == pq.peek()){
                     pq.poll();
-                    printOrder++;
-
-                    if(doc.originalIdx == target){
-                        System.out.println(printOrder);
+                    
+                    if(cur[0] == target){
+                        System.out.println(cnt);
                         break;
                     }
-                }else {
-
-                    queue.add(doc);
+                    
+                    cnt++;
                 }
+                
+                
             }
+            
         }
+        
+        
     }
 }
