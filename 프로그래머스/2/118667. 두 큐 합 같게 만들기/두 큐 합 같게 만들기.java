@@ -1,53 +1,52 @@
-
 import java.util.*;
 
 class Solution {
     public int solution(int[] queue1, int[] queue2) {
-        int answer = -2;        
-        long target = 0L;
-        long q1Sum = 0L;
-        long q2Sum = 0L;
+        int answer = -2;
         
-        long[] q = new long[(queue1.length + queue2.length) * 2];
-        
-        for(int i = 0 ; i<queue1.length; i++){
-            q1Sum += (long) queue1[i];
-            q2Sum += (long) queue2[i];
-        }
-        
-
-        target = (q1Sum + q2Sum) / 2;
-        if((q1Sum + q2Sum) % 2 != 0) return -1;
-        for(int i = 0; i<queue1.length; i++) q[i] = (long) queue1[i];
-        for(int i = 0; i<queue2.length; i++) q[i + queue1.length] = (long) queue2[i];
-        for(int i = 0; i<queue1.length + queue2.length; i++) q[i + queue1.length + queue2.length] = q[i];
-
-        int round = 0; boolean found = false;
+        long sum = 0;
         int limit = queue1.length + queue2.length;
-        long curSum = q1Sum;
-        int left = 0; int right = queue1.length;
         
-        // for(long i: q) System.out.print(i + " ");
-        // System.out.println();
-        // System.out.println("curSUm: " + curSum);
+        Queue<Integer> q1 = new LinkedList<>();
+        Queue<Integer> q2 = new LinkedList<>();
+        long q1s = 0;
+        long q2s = 0;
         
-        while(round < limit* 2){
-            if(curSum == target){
-                found = true;
-                break;
-            }    
-            
-            if(curSum > target){
-                curSum -= q[left]; left++;
-                // System.out.println("subtract left - res: " + curSum);
-            } else {
-                curSum += q[right]; right++;
-                // System.out.println("add right - res: " + curSum);
-
-            }
-            round++;
+        for(int num : queue1){
+            q1s += (long) num;
+            sum += (long) num;
+            q1.add(num);
         }
         
-        return found ? round : -1;
+        for(int num : queue2){
+            q2.add(num);
+            sum += (long) num;
+            q2s += (long) num;
+        }
+        
+        
+        if(sum % 2 != 0) return -1;
+        int cnt = 0;
+        
+        while(limit*2 >= cnt){
+            if(q1s == q2s){
+                return cnt;
+            }else if(q1s > q2s){
+                int pop = q1.poll();
+                q1s -= pop;
+                q2s += pop;
+                q2.add(pop);
+                cnt++;
+            }else {
+                int pop = q2.poll();
+                q1s += pop;
+                q2s -= pop;
+                q1.add(pop);
+                cnt++;
+            }
+        }
+        
+        
+        return -1;
     }
 }
